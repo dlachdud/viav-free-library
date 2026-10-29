@@ -54,10 +54,10 @@
 - `assets/logo.png`: 초영님이 주신 원본 로고 (브라우저 탭 아이콘).
 - 색은 모두 `assets/style.css` 맨 위에 모여 있어요.
 
-## Vercel 에 올리기
-1. `node build.js` 를 실행하면 `배포용/viav-free-library` 폴더와 `viav-free-library.zip` 이 새로 만들어져요. 올릴 파일은 이것뿐이에요 (`index.html` + `assets`).
-2. 처음 한 번: GitHub 에 새 저장소를 만들고 폴더 안의 파일을 올린 뒤, Vercel 에서 그 저장소를 Import 해요. Framework 는 Other, Build 명령은 비워 둬요.
-3. 자료를 고친 뒤에는 다시 `node build.js` → 바뀐 파일을 GitHub 에 올리면 Vercel 이 알아서 새로 배포해요.
+## Vercel 배포
+- 이 저장소의 `main` 에 올라오면 Vercel 이 `node build.js` 를 실행하고 `dist/` 폴더만 공개해요 (`vercel.json`).
+- 그래서 `content` · `tools` · `notion_raw` · `build.js` 는 사이트에 공개되지 않아요. (저장소가 Public 이면 GitHub 에서는 보여요)
+- 압축 파일을 끌어다 놓을 필요가 없어요. 매일 저녁 자동 작업이 노션 자료를 옮겨 `main` 에 올려요.
 
 ## 노션에서 자료 옮기기 (tools/notion_import.py)
 1. 노션 「DM 자료 모음」의 하위 페이지를 읽어 `notion_raw/_pages.json`(아이콘 · 날짜 · 웹 게시)과 `notion_raw/<페이지 id>.md`(노션 원문 그대로)로 저장해요. (지금은 Claude 가 노션 연결로 읽어 저장해요. 다음 단계의 매일 자동 반영도 이 방식)
