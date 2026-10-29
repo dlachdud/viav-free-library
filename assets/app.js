@@ -67,8 +67,10 @@
         while (i < lines.length && !lines[i].trim().startsWith("```")) buf.push(lines[i++]);
         i++;
         const code = buf.join("\n");
-        if (fence[1].trim() === "프롬프트") {
-          out.push(`<div class="prompt"><div class="prompt-bar"><span>프롬프트</span><button type="button" class="copy">복사하기</button></div><pre>${esc(code)}</pre></div>`);
+        const kind = fence[1].trim();
+        if (kind === "프롬프트" || kind === "문장") {
+          const label = kind === "프롬프트" ? "프롬프트" : "그대로 쓰는 문장";
+          out.push(`<div class="prompt"><div class="prompt-bar"><span>${label}</span><button type="button" class="copy">복사하기</button></div><pre>${esc(code)}</pre></div>`);
         } else {
           out.push(`<pre><code>${esc(code)}</code></pre>`);
         }
@@ -165,7 +167,7 @@
       <header class="page-head"><h1>${esc(c.icon)} ${esc(c.name)}</h1><p>${esc(c.desc)}</p></header>
       ${c.items.length ? `<ul class="cards">${c.items.map(it => `
         <li><a class="card" href="${href(c.id, it.id)}">
-          <span><h3>${esc(it.title)}</h3><p>${esc(it.gets)}</p>${it.date ? `<span class="meta">${fmtDate(it.date)}</span>` : ""}</span>
+          <span><h3>${esc(it.title)}</h3><p>${esc(it.intro || it.gets)}</p>${it.date ? `<span class="meta">${fmtDate(it.date)}</span>` : ""}</span>
           <span class="go" aria-hidden="true">›</span>
         </a></li>`).join("")}</ul>`
         : `<div class="empty">곧 올라와요<br>자료가 준비되면 이곳에 보여 드릴게요</div>`}
@@ -180,6 +182,7 @@
       <nav class="crumb"><a href="#/">처음</a> › <a href="${href(c.id)}">${esc(c.name)}</a></nav>
       <header class="doc-head">
         <h1>${esc(it.title)}</h1>
+        ${it.intro ? `<p class="intro-line">${esc(it.intro)}</p>` : ""}
         ${it.gets ? `<div class="gets"><b>이 자료로 받는 것</b> · ${esc(it.gets)}</div>` : ""}
         ${it.date ? `<div class="date">${fmtDate(it.date)} 정리</div>` : ""}
       </header>
