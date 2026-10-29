@@ -1,0 +1,4 @@
+dist/
+배포용/
+assets/data.js
+tools/__pycache__/
