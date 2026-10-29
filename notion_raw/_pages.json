@@ -3,15 +3,75 @@
   "source_page": "3fcaf78d7b348106ac4ec13176ce9a73",
   "fetched_at": "2026-10-29",
   "pages": [
-    { "id": "406af78d7b34818795dfdb64a6b45810", "notion_title": "CC | DM 답장 스킬 세트", "icon": "custom:viav-monogram-milk", "date": "2026-10-28", "web_published": null },
-    { "id": "405af78d7b3481249c53d2d1da9db145", "notion_title": "CC | 우리 손님 나이대 체크표", "icon": "🔴", "date": "2026-10-27", "web_published": null },
-    { "id": "404af78d7b34813e87d2c2ddc9faf81e", "notion_title": "CC | 첫 장면 고르기 표", "icon": "🔴", "date": "2026-10-26", "web_published": null },
-    { "id": "403af78d7b3481aab567c27004ed7063", "notion_title": "CC | 손님 질문 10개 뽑는 표", "icon": "🔴", "date": "2026-10-25", "web_published": null },
-    { "id": "401af78d7b3481ca9871f05c68c87634", "notion_title": "CC | 프로필 주문 한 줄 예시 모음", "icon": "🔴", "date": "2026-10-23", "web_published": null },
-    { "id": "3ffaf78d7b3481d4a728dab429774b89", "notion_title": "CC | 주문 안내문 프롬프트", "icon": "🔴", "date": "2026-10-21", "web_published": null },
-    { "id": "3feaf78d7b3481f5a33aeb7ee9dc9ffc", "notion_title": "'트렌디한 요즘 맛'소식 + 후킹멘트 프롬프트", "icon": "custom:viav-monogram-milk", "date": "2026-10-20", "web_published": null },
-    { "id": "3fdaf78d7b34815fb3ded3ce4ace09cd", "notion_title": "CC | 따라 찍기 좋은 릴스 고르는 체크리스트", "icon": "custom:viav-monogram-milk", "date": "2026-10-19", "web_published": null },
-    { "id": "3fcaf78d7b3481c498e3f45d686b5f35", "notion_title": "CC | 릴스 대본 빈칸 채우기 세트", "icon": "🔴", "date": "2026-10-18", "web_published": null },
-    { "id": "3fcaf78d7b3481108aa9ec1d42dcb699", "notion_title": "CC | 자료 페이지 템플릿 (삭제 금지)", "icon": "", "date": "", "web_published": null }
+    {
+      "id": "406af78d7b34818795dfdb64a6b45810",
+      "notion_title": "CC | DM 답장 스킬 세트",
+      "icon": "custom:viav-monogram-milk",
+      "date": "2026-10-28",
+      "web_published": null
+    },
+    {
+      "id": "405af78d7b3481249c53d2d1da9db145",
+      "notion_title": "CC | 우리 손님 나이대 체크표",
+      "icon": "🔴",
+      "date": "2026-10-27",
+      "web_published": null
+    },
+    {
+      "id": "404af78d7b34813e87d2c2ddc9faf81e",
+      "notion_title": "CC | 첫 장면 고르기 표",
+      "icon": "🔴",
+      "date": "2026-10-26",
+      "web_published": null
+    },
+    {
+      "id": "403af78d7b3481aab567c27004ed7063",
+      "notion_title": "CC | 손님 질문 10개 뽑는 표",
+      "icon": "🔴",
+      "date": "2026-10-25",
+      "web_published": null
+    },
+    {
+      "id": "401af78d7b3481ca9871f05c68c87634",
+      "notion_title": "CC | 프로필 주문 한 줄 예시 모음",
+      "icon": "🔴",
+      "date": "2026-10-23",
+      "web_published": null
+    },
+    {
+      "id": "3ffaf78d7b3481d4a728dab429774b89",
+      "notion_title": "CC | 주문 안내문 프롬프트",
+      "icon": "custom:viav-monogram-milk",
+      "date": "2026-10-21",
+      "web_published": null
+    },
+    {
+      "id": "3feaf78d7b3481f5a33aeb7ee9dc9ffc",
+      "notion_title": "'트렌디한 요즘 맛'소식 + 후킹멘트 프롬프트",
+      "icon": "custom:viav-monogram-milk",
+      "date": "2026-10-20",
+      "web_published": null
+    },
+    {
+      "id": "3fdaf78d7b34815fb3ded3ce4ace09cd",
+      "notion_title": "CC | 따라 찍기 좋은 릴스 고르는 체크리스트",
+      "icon": "custom:viav-monogram-milk",
+      "date": "2026-10-19",
+      "web_published": null
+    },
+    {
+      "id": "3fcaf78d7b3481c498e3f45d686b5f35",
+      "notion_title": "CC | 릴스 대본 빈칸 채우기 세트",
+      "icon": "🔴",
+      "date": "2026-10-18",
+      "web_published": null
+    },
+    {
+      "id": "3fcaf78d7b3481108aa9ec1d42dcb699",
+      "notion_title": "CC | 자료 페이지 템플릿 (삭제 금지)",
+      "icon": "",
+      "date": "",
+      "web_published": null
+    }
   ]
 }
