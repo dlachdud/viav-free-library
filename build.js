@@ -103,6 +103,7 @@ for (const dir of fs.readdirSync(CONTENT).sort()) {
       intro: meta["소개"] || "",
       date: meta["날짜"] || "",
       order: Number(meta["순서"] || 99),
+      notion: meta["노션"] || "",
       ...parts,
     });
   }
@@ -121,7 +122,7 @@ const data = {
   site: { name: config["이름"], slogan: config["슬로건"], intro: config["소개"], banners: config["배너"] || [] },
   categories: categories.map(c => ({
     ...c,
-    items: c.items.map(({ open, locked, ratio, ...it }) => {
+    items: c.items.map(({ open, locked, ratio, notion, ...it }) => {
       const file = `items/${c.id}--${it.id}.json`;
       bodies.push({ file, open, locked });
       return { ...it, file, hasLock: !!locked.trim() };
@@ -147,5 +148,51 @@ for (const f of fs.readdirSync(path.join(ROOT, "assets"))) {
 }
 for (const b of bodies) fs.writeFileSync(path.join(DIST, "assets", b.file), JSON.stringify({ open: b.open, locked: b.locked }));
 
+// 나만 보는 관리자 페이지 (admin.html → dist/<관리자 주소>/index.html)
+// 주소는 저장소가 공개라서 저장소에 적지 않고, Vercel 환경 변수 VIAV_ADMIN_PATH 에만 둬요 (kanri- 로 시작).
+// 이 값이 없으면 관리자 페이지는 만들지 않아요.
+const adminPath = (process.env.VIAV_ADMIN_PATH || "").trim();
+let adminNote = "관리자 페이지: VIAV_ADMIN_PATH 가 없어서 만들지 않았어요";
+if (adminPath && !/^kanri-[a-z0-9]{16,}$/.test(adminPath)) {
+  warnings.push("VIAV_ADMIN_PATH 는 kanri- 뒤에 영어 소문자 · 숫자 16자 이상이어야 해요. 관리자 페이지를 만들지 않았어요.");
+} else if (adminPath) {
+  const siteUrl = (config["자료실주소"] || "").replace(/\/+$/, "");
+  const s = config["스티비"] || {};
+  const groupIds = s["분야그룹"] || {};
+  const logFile = path.join(ROOT, "tools", "sync.log");
+  const log = (fs.existsSync(logFile) ? fs.readFileSync(logFile, "utf8") : "").split("\n").filter(l => l.trim()).reverse().slice(0, 60)
+    .map(l => {
+      const [when, ...rest] = l.split(" · ");
+      const checkAt = rest.findIndex(r => r.startsWith("확인 필요:"));
+      const check = checkAt >= 0 ? rest.slice(checkAt).join(" · ").replace(/^확인 필요:\s*/, "") : "";
+      const head = checkAt >= 0 ? rest.slice(0, checkAt) : rest;
+      return { when, counts: head.slice(0, 3).join(" · "), pushed: head.slice(3).join(" · "), check };
+    });
+  const admin = {
+    builtAt: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "medium", timeStyle: "short" }),
+    cats: categories.map(c => ({ id: c.id, name: c.name, icon: c.icon })),
+    items: categories.flatMap(c => c.items.map(it => ({
+      title: it.title, date: it.date, cat: c.id, catName: c.name, catIcon: c.icon, notion: it.notion,
+      hasLock: !!it.locked.trim(), url: `${siteUrl}/#/${encodeURIComponent(c.id)}/${encodeURIComponent(it.id)}`,
+    }))).sort((a, b) => (b.date || "").localeCompare(a.date || "")),
+    log,
+    links: [
+      { label: "자료실 열기", href: siteUrl + "/" },
+      { label: "반영 기록 전체 (GitHub)", href: "https://github.com/dlachdud/viav-free-library/blob/main/tools/sync.log" },
+      { label: "Vercel 배포 화면", href: "https://vercel.com/dashboard" },
+    ],
+    stibee: {
+      listId: s["주소록"], list: `https://stibee.com/lists/${s["주소록"]}`,
+      groups: categories.filter(c => groupIds[c.id]).map(c => ({ name: c.name, icon: c.icon, id: groupIds[c.id] })),
+    },
+  };
+  const html = fs.readFileSync(path.join(ROOT, "admin.html"), "utf8")
+    .replace("/*ADMIN_DATA*/", JSON.stringify(admin).replace(/</g, "\\u003c"));
+  fs.mkdirSync(path.join(DIST, adminPath), { recursive: true });
+  fs.writeFileSync(path.join(DIST, adminPath, "index.html"), html);
+  adminNote = `관리자 페이지: 만들었어요 (자료 ${admin.items.length}개 · 기록 ${log.length}줄)`;
+}
+
 if (warnings.length) console.log("\n알림\n" + warnings.map(w => " - " + w).join("\n"));
+console.log(adminNote);
 console.log(`\n완료: assets/data.js · dist/ (자료 본문 ${bodies.length}개 · 버전 ${version})`);

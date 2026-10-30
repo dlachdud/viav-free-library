@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 나만 보는 관리자 페이지: 검색엔진에 안 잡히게 하고, 다른 사이트로 넘어갈 때 이 주소를 알리지 않아요 -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="referrer" content="no-referrer">
+  <title>자료실 관리</title>
+  <link rel="icon" href="../assets/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .admin { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+    .admin h1 { font-size: 22px; color: var(--ink-strong); margin: 8px 0 4px; }
+    .admin h2 { font-size: 17px; color: var(--ink-strong); margin: 0 0 12px; }
+    .admin .sub { color: var(--ink-soft); font-size: 14px; margin: 0 0 20px; }
+    .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 14px; margin-bottom: 18px; }
+    .quick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+            background: var(--paper); color: var(--ink); font: inherit; font-size: 14px; text-decoration: none; cursor: pointer; }
+    .pill:hover { border-color: var(--sage-line); background: var(--sage-soft); }
+    .pill.on { background: #D7DDCC; border-color: #D7DDCC; color: var(--ink-strong); font-weight: 500; }
+    .filters { margin-bottom: 12px; }
+    .item { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .item:first-of-type { border-top: 0; }
+    .item .t { color: var(--ink-strong); font-weight: 500; }
+    .item .meta { color: var(--ink-soft); font-size: 13px; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--sage-soft); color: var(--ink); font-size: 12px; margin-right: 6px; }
+    .item .acts { display: flex; gap: 6px; align-items: start; }
+    .item .link { grid-column: 1 / -1; font-size: 12px; color: var(--ink-soft); word-break: break-all; }
+    .copy { background: var(--taupe); color: #fff; border: 0; border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap; }
+    .copy:hover { background: var(--taupe-deep); }
+    .copy.done { background: #D7DDCC; color: var(--ink-strong); }
+    .log { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+    .log li { padding: 9px 0; border-top: 1px solid var(--line); }
+    .log li:first-child { border-top: 0; }
+    .log .d { color: var(--ink-strong); font-weight: 500; margin-right: 8px; }
+    .log .check { display: block; margin-top: 4px; padding: 6px 10px; border-radius: 10px; background: #FBF3E2; color: var(--ink); font-size: 13px; }
+    .log .fail { color: #A4564A; font-weight: 500; }
+    .muted { color: var(--ink-soft); font-size: 13px; }
+    .groups { margin: 10px 0 0; padding: 0; list-style: none; font-size: 14px; }
+    .groups li { padding: 3px 0; }
+    @media (max-width: 560px) {
+      .item { grid-template-columns: 1fr; }
+      .item .acts { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin">
+    <h1>자료실 관리</h1>
+    <p class="sub" id="built"></p>
+
+    <section class="panel">
+      <h2>바로가기</h2>
+      <div class="quick" id="quick"></div>
+    </section>
+
+    <section class="panel">
+      <h2>자료 목록 <span class="muted" id="count"></span></h2>
+      <div class="quick filters" id="filters"></div>
+      <div id="items"></div>
+    </section>
+
+    <section class="panel">
+      <h2>매일 새벽 반영 기록</h2>
+      <ul class="log" id="log"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>스티비 주소록</h2>
+      <div class="quick" id="stibee"></div>
+      <ul class="groups" id="groups"></ul>
+    </section>
+  </div>
+
+  <script>
+    window.ADMIN = /*ADMIN_DATA*/;
+  </script>
+  <script>
+    (function () {
+      const A = window.ADMIN;
+      const esc = s => String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const $ = id => document.getElementById(id);
+      const ext = (href, label) => `<a class="pill" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+
+      $("built").textContent = `마지막으로 새로 만든 때: ${A.builtAt} · 자료실을 다시 올릴 때마다 이 페이지도 같이 새로 만들어져요`;
+      $("quick").innerHTML = A.links.map(l => ext(l.href, esc(l.label))).join("");
+
+      // 자료 목록: 최신순 + 분야 이름표, 위 버튼으로 분야만 골라 보기
+      let filter = "";
+      function drawItems() {
+        const list = A.items.filter(it => !filter || it.cat === filter);
+        $("count").textContent = `${list.length}개`;
+        $("filters").innerHTML = [`<button class="pill${filter ? "" : " on"}" data-cat="">전체</button>`]
+          .concat(A.cats.map(c => `<button class="pill${filter === c.id ? " on" : ""}" data-cat="${esc(c.id)}">${esc(c.icon)} ${esc(c.name)}</button>`)).join("");
+        $("items").innerHTML = list.length ? list.map(it => `
+          <div class="item">
+            <div>
+              <div class="t">${esc(it.title)}</div>
+              <div class="meta"><span class="tag">${esc(it.catIcon)} ${esc(it.catName)}</span>${esc(it.date)}${it.hasLock ? " · 이메일 잠금 있음" : ""}</div>
+            </div>
+            <div class="acts">
+              <button class="copy" data-url="${esc(it.url)}">DM 링크 복사</button>
+              <a class="pill" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">열기</a>
+              ${it.notion ? `<a class="pill" href="${esc(it.notion)}" target="_blank" rel="noopener noreferrer">노션</a>` : ""}
+            </div>
+            <div class="link">${esc(it.url)}</div>
+          </div>`).join("") : `<p class="muted">이 분야에는 아직 자료가 없어요</p>`;
+      }
+      drawItems();
+      $("filters").addEventListener("click", e => {
+        const b = e.target.closest("[data-cat]");
+        if (b) { filter = b.dataset.cat; drawItems(); }
+      });
+
+      function copy(text) {
+        if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        return Promise.resolve();
+      }
+      $("items").addEventListener("click", e => {
+        const b = e.target.closest(".copy");
+        if (!b) return;
+        copy(b.dataset.url).then(() => {
+          b.textContent = "복사했어요 ✓";
+          b.classList.add("done");
+          setTimeout(() => { b.textContent = "DM 링크 복사"; b.classList.remove("done"); }, 1800);
+        });
+      });
+
+      // 반영 기록: 최근 것부터
+      $("log").innerHTML = A.log.length ? A.log.map(l => `
+        <li><span class="d">${esc(l.when)}</span>${esc(l.counts)} · <span class="${/실패/.test(l.pushed) ? "fail" : ""}">${esc(l.pushed)}</span>
+        ${l.check && l.check !== "없음" ? `<span class="check">확인 필요: ${esc(l.check)}</span>` : ""}</li>`).join("")
+        : `<li class="muted">아직 기록이 없어요</li>`;
+
+      $("stibee").innerHTML = ext(A.stibee.list, "스티비 주소록 열기") + ext("https://stibee.com", "스티비 첫 화면");
+      $("groups").innerHTML = A.stibee.groups.map(g => `<li>${esc(g.icon)} ${esc(g.name)} → 그룹 번호 <b>${esc(g.id)}</b></li>`).join("")
+        + `<li class="muted">주소록 ${esc(A.stibee.listId)} 안의 「그룹」에서 위 번호로 분야별 구독자를 볼 수 있어요</li>`;
+    })();
+  </script>
+</body>
+</html>
