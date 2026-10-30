@@ -60,7 +60,19 @@
 ## Vercel 배포
 - 이 저장소의 `main` 에 올라오면 Vercel 이 `node build.js` 를 실행하고 `dist/` 폴더만 공개해요 (`vercel.json`).
 - 그래서 `content` · `tools` · `notion_raw` · `build.js` 는 사이트에 공개되지 않아요. (저장소가 Public 이면 GitHub 에서는 보여요)
-- 압축 파일을 끌어다 놓을 필요가 없어요. 매일 저녁 자동 작업이 노션 자료를 옮겨 `main` 에 올려요.
+- 직접 배포: `./deploy.sh` ("자료실 배포해줘") → 만들어 보고 확인한 뒤 `main` 에 올려요.
+- 매일 저녁 8:51 자동 작업도 노션 자료를 옮겨 `main` 에 올려요.
+- 처음 화면이 빨리 뜨도록 `assets/data.js` 에는 목록만 넣고, 자료 본문은 `assets/items/<분야>--<자료>.json` 으로 따로 둬서 자료를 열 때만 불러와요.
+
+## 홈페이지에 붙이기 (코드 두 줄)
+`홈페이지에_붙이기.html` 의 두 줄을 홈페이지의 HTML 블록에 붙여 넣으면 돼요.
+```html
+<div id="viav-free-library"></div>
+<script src="https://viav-free-library.vercel.app/embed.js" defer></script>
+```
+- 자료실은 상자 안(Shadow DOM)에 그려져서 홈페이지 디자인과 섞이지 않아요.
+- 자료를 열면 홈페이지 주소 끝에 `#/ai/...` 같은 표시가 붙어요 (그 주소를 공유하면 그 자료가 바로 열려요).
+- 이메일 · 스티비 연결도 그대로 돼요.
 
 ## 노션에서 자료 옮기기 (tools/notion_import.py)
 1. 노션 「DM 자료 모음」의 하위 페이지를 읽어 `notion_raw/_pages.json`(아이콘 · 날짜 · 웹 게시)과 `notion_raw/<페이지 id>.md`(노션 원문 그대로)로 저장해요. (지금은 Claude 가 노션 연결로 읽어 저장해요. 다음 단계의 매일 자동 반영도 이 방식)

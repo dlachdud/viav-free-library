@@ -1,18 +1,29 @@
 // =====================================================================
 // 무료 자료실 화면
-// 처음 화면(#/) → 분야 목록(#/분야폴더) → 자료 한 개(#/분야폴더/자료파일)
-// 자료 내용은 assets/data.js (node build.js 로 만들어요) 에서 읽어요.
+// 처음 화면(#/) → 분야 목록(#/분야) → 자료 한 개(#/분야/자료)
+// 목록은 assets/data.js, 자료 본문은 열 때만 assets/items/*.json 에서 불러와요 (node build.js 가 만들어요).
+// 자료실 주소(index.html)에서는 저절로 열리고, 다른 홈페이지에서는 embed.js 가 ViavLibrary.mount() 로 붙여요.
 // =====================================================================
 (function () {
+const KEY = "viav_free_email";
+
+function mount(app, opts) {
+  opts = opts || {};
   const L = window.LIBRARY;
-  const app = document.getElementById("app");
-  const KEY = "viav_free_email";
+  const BASE = opts.base || "";       // 다른 홈페이지에 붙일 때 자료실 주소 (예: https://viav-free-library.vercel.app/)
+  const EMBED = !!opts.embed;
+  const bodies = {};                  // 한 번 불러온 자료 본문
+  const setTitle = t => { if (!EMBED) document.title = t; };
+  const toTop = first => {
+    if (!EMBED) window.scrollTo(0, 0);
+    else if (!first && app.getBoundingClientRect().top < 0) app.scrollIntoView();
+  };
 
   // ---------- 이메일 → 스티비 주소록 ----------
   // 사이트의 /api/subscribe (api/subscribe.js) 가 스티비에 구독자를 넣어요. API 키는 Vercel 설정에만 있어요.
   // 스티비가 늦거나 실패해도, 이미 구독 중이어도 방문자에게는 자료를 열어 줘요. 6초 넘게 걸리면 기다리지 않아요.
   function sendEmail(email, category, adAgreed) {
-    const post = fetch("api/subscribe", {
+    const post = fetch(BASE + "api/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, category, adAgreed: !!adAgreed, privacyAgreed: true }),
@@ -142,15 +153,15 @@
   function banners() {
     if (!L.site.banners.length) return "";
     return `<section class="banners" aria-label="비아브 소식">${L.site.banners.map(b =>
-      `<div class="banner"><img src="assets/logo_symbol.svg" alt=""><p>${esc(b["문구"])}</p><a href="${esc(b["링크"])}" target="_blank" rel="noopener">${esc(b["버튼"])}</a></div>`
+      `<div class="banner"><img src="${BASE}assets/logo_symbol.svg" alt=""><p>${esc(b["문구"])}</p><a href="${esc(b["링크"])}" target="_blank" rel="noopener">${esc(b["버튼"])}</a></div>`
     ).join("")}</section>`;
   }
 
   function home() {
-    document.title = L.site.name;
+    setTitle(L.site.name);
     app.innerHTML = `
       <section class="hero">
-        <img src="assets/logo_symbol.svg" alt="VIAV 비아브 로고">
+        <img src="${BASE}assets/logo_symbol.svg" alt="VIAV 비아브 로고">
         <h1>${esc(L.site.name)}</h1>
         <p class="slogan">${esc(L.site.slogan)}</p>
         <p class="intro">${esc(L.site.intro)}</p>
@@ -168,7 +179,7 @@
   }
 
   function category(c) {
-    document.title = `${c.name} · ${L.site.name}`;
+    setTitle(`${c.name} · ${L.site.name}`);
     app.innerHTML = `
       <nav class="crumb"><a href="#/">← 처음으로</a></nav>
       <header class="page-head"><h1>${esc(c.icon)} ${esc(c.name)}</h1><p>${esc(c.desc)}</p></header>
@@ -181,10 +192,26 @@
       ${banners()}`;
   }
 
+  function loadBody(it) {
+    if (bodies[it.file]) return Promise.resolve(bodies[it.file]);
+    return fetch(`${BASE}assets/${it.file}?v=${L.version || ""}`)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(b => (bodies[it.file] = b));
+  }
+
   function item(c, it) {
-    document.title = `${it.title} · ${L.site.name}`;
+    setTitle(`${it.title} · ${L.site.name}`);
+    const b = bodies[it.file];
+    if (!b) {
+      app.innerHTML = `<nav class="crumb"><a href="#/">처음</a> › <a href="${href(c.id)}">${esc(c.name)}</a></nav>
+        <div class="empty" style="margin-top:24px">자료를 불러오고 있어요…</div>`;
+      loadBody(it).then(() => { if (current === it) item(c, it); }, () => {
+        if (current === it) app.querySelector(".empty").innerHTML = `자료를 불러오지 못했어요<br><a href="${href(c.id, it.id)}" class="retry">다시 불러오기</a>`;
+      });
+      return;
+    }
     const open = isUnlocked();
-    const hasLock = !!it.locked.trim();
+    const hasLock = !!(b.locked || "").trim();
     app.innerHTML = `
       <nav class="crumb"><a href="#/">처음</a> › <a href="${href(c.id)}">${esc(c.name)}</a></nav>
       <header class="doc-head">
@@ -194,9 +221,9 @@
         ${it.date ? `<div class="date">${fmtDate(it.date)} 정리</div>` : ""}
       </header>
       <article class="doc">
-        <div class="part open">${render(it.open)}</div>
+        <div class="part open">${render(b.open)}</div>
         ${!hasLock ? "" : open
-          ? `<p class="unlocked-note">🔓 이메일 확인 완료 · 아래 내용까지 모두 열렸어요</p><div class="part locked">${render(it.locked)}</div>`
+          ? `<p class="unlocked-note">🔓 이메일 확인 완료 · 아래 내용까지 모두 열렸어요</p><div class="part locked">${render(b.locked)}</div>`
           : `<div class="fade"></div>
              <section class="gate" aria-labelledby="gate-title">
                <div class="lock" aria-hidden="true">🔒</div>
@@ -275,7 +302,9 @@
     app.innerHTML = `<div class="empty" style="margin-top:32px">찾는 자료가 없어요<br><a href="#/">처음 화면으로 가기</a></div>`;
   }
 
-  function route() {
+  let current = null;
+  function route(first) {
+    current = null;
     const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
     if (!parts.length) home();
     else {
@@ -284,10 +313,11 @@
       else if (parts.length === 1) category(c);
       else {
         const it = c.items.find(x => x.id === parts[1]);
+        current = it || null;
         it ? item(c, it) : notFound();
       }
     }
-    window.scrollTo(0, 0);
+    toTop(first === true);
   }
 
   // 프롬프트 복사
@@ -315,6 +345,17 @@
     else fallback();
   });
 
-  window.addEventListener("hashchange", route);
-  route();
+  // 다시 불러오기 링크는 같은 주소라 hashchange 가 안 생겨서 직접 다시 그려요
+  app.addEventListener("click", e => {
+    if (e.target.closest(".retry")) { e.preventDefault(); route(); }
+  });
+
+  window.addEventListener("hashchange", () => route());
+  route(true);
+}
+
+window.ViavLibrary = { mount };
+// 자료실 주소(index.html)에서는 #app 에 바로 열어요
+const own = document.getElementById("app");
+if (own && !window.VIAV_EMBED) mount(own, {});
 })();

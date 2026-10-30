@@ -1,6 +1,6 @@
 /* 비아브 색
    바탕 크림 · 글씨 코코아 · 버튼 토프 · 면 세이지 · 포인트 골드(작은 점과 선에만) */
-:root {
+:root, :host {
   --bg: #FAF6F1;          /* 바탕 */
   --paper: #FFFFFF;       /* 카드 · 자료 칸 */
   --line: #E4DCD2;        /* 얇은 선 */
@@ -29,6 +29,22 @@ body {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
+/* 다른 홈페이지에 붙였을 때 (embed.js) 의 바탕 */
+.viav-embed {
+  display: block;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-align: left;
+  border-radius: var(--radius);
+  padding-bottom: 24px;
+}
+.viav-embed * { box-sizing: border-box; }
 a { color: inherit; }
 img { max-width: 100%; }
 :focus-visible { outline: 2px solid var(--taupe); outline-offset: 3px; border-radius: 6px; }

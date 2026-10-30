@@ -112,23 +112,40 @@ for (const dir of fs.readdirSync(CONTENT).sort()) {
 }
 categories.sort((a, b) => a.order - b.order);
 
+// 처음 화면이 빨리 뜨도록 data.js 에는 목록(제목 · 소개 등)만 넣고,
+// 자료 본문(공개 · 잠금 부분)은 자료마다 assets/items/<분야>--<자료>.json 으로 따로 둬요. 자료를 열 때만 불러와요.
+const builtAt = new Date().toISOString();
+const version = builtAt.replace(/\D/g, "").slice(0, 12);
+const bodies = [];
 const data = {
   site: { name: config["이름"], slogan: config["슬로건"], intro: config["소개"], banners: config["배너"] || [] },
-  categories,
-  builtAt: new Date().toISOString(),
+  categories: categories.map(c => ({
+    ...c,
+    items: c.items.map(({ open, locked, ratio, ...it }) => {
+      const file = `items/${c.id}--${it.id}.json`;
+      bodies.push({ file, open, locked });
+      return { ...it, file, hasLock: !!locked.trim() };
+    }),
+  })),
+  version,
+  builtAt,
 };
 fs.writeFileSync(OUT, `// node build.js 가 만든 파일이에요. 직접 고치지 말고 content 폴더를 고친 뒤 다시 실행하세요.\nwindow.LIBRARY = ${JSON.stringify(data, null, 2)};\n`);
 
 for (const c of categories) {
   console.log(`${c.icon} ${c.name}: 자료 ${c.items.length}개${c.items.map(i => `\n   - ${i.title} (공개 ${i.ratio}%)`).join("")}`);
 }
-// 사이트 파일: index.html 과 assets 만 dist 폴더에 담아요 (Vercel 이 이 폴더만 공개해요).
+// 사이트 파일: index.html · embed.js · assets 만 dist 폴더에 담아요 (Vercel 이 이 폴더만 공개해요).
 // content · tools · notion_raw · build.js 는 공개되지 않아요.
 const DIST = path.join(ROOT, "dist");
 fs.rmSync(DIST, { recursive: true, force: true });
-fs.mkdirSync(path.join(DIST, "assets"), { recursive: true });
+fs.mkdirSync(path.join(DIST, "assets", "items"), { recursive: true });
 fs.copyFileSync(path.join(ROOT, "index.html"), path.join(DIST, "index.html"));
-for (const f of fs.readdirSync(path.join(ROOT, "assets"))) fs.copyFileSync(path.join(ROOT, "assets", f), path.join(DIST, "assets", f));
+fs.copyFileSync(path.join(ROOT, "embed.js"), path.join(DIST, "embed.js"));
+for (const f of fs.readdirSync(path.join(ROOT, "assets"))) {
+  if (fs.statSync(path.join(ROOT, "assets", f)).isFile()) fs.copyFileSync(path.join(ROOT, "assets", f), path.join(DIST, "assets", f));
+}
+for (const b of bodies) fs.writeFileSync(path.join(DIST, "assets", b.file), JSON.stringify({ open: b.open, locked: b.locked }));
 
 if (warnings.length) console.log("\n알림\n" + warnings.map(w => " - " + w).join("\n"));
-console.log(`\n완료: assets/data.js · dist/`);
+console.log(`\n완료: assets/data.js · dist/ (자료 본문 ${bodies.length}개 · 버전 ${version})`);
