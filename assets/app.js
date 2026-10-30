@@ -8,10 +8,17 @@
   const app = document.getElementById("app");
   const KEY = "viav_free_email";
 
-  // ---------- 이메일 (아직 연결 전) ----------
-  // 이메일 서비스를 연결할 때 이 함수 안만 바꾸면 돼요. 지금은 아무 곳에도 보내지 않아요.
-  function sendEmail(email) {
-    return Promise.resolve(email);
+  // ---------- 이메일 → 스티비 주소록 ----------
+  // 사이트의 /api/subscribe (api/subscribe.js) 가 스티비에 구독자를 넣어요. API 키는 Vercel 설정에만 있어요.
+  // 스티비가 늦거나 실패해도, 이미 구독 중이어도 방문자에게는 자료를 열어 줘요. 6초 넘게 걸리면 기다리지 않아요.
+  function sendEmail(email, category, adAgreed) {
+    const post = fetch("api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, category, adAgreed: !!adAgreed, privacyAgreed: true }),
+    }).then(r => r.json()).catch(() => ({ ok: false }));
+    const timeout = new Promise(res => setTimeout(() => res({ ok: false, timeout: true }), 6000));
+    return Promise.race([post, timeout]);
   }
 
   let memoryEmail = "";
@@ -196,9 +203,29 @@
                <h2 id="gate-title">나머지 내용은 이메일을 넣으면 열려요</h2>
                <p>프롬프트와 체크리스트까지 전부 볼 수 있어요<br>한 번만 넣으면 모든 자료가 계속 열려 있어요</p>
                <form novalidate>
-                 <label class="sr" for="email" hidden>이메일</label>
-                 <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소" required>
-                 <button type="submit">자료 열기</button>
+                 <div class="row">
+                   <label class="sr" for="email" hidden>이메일</label>
+                   <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="이메일 주소" required>
+                   <button type="submit">자료 열기</button>
+                 </div>
+                 <div class="agree">
+                   <label><input type="checkbox" id="agree-privacy"> <span><b>(필수)</b> 개인정보 수집·이용에 동의해요</span></label>
+                   <details>
+                     <summary>자세히 보기</summary>
+                     <ul>
+                       <li>수집 항목: 이메일 주소</li>
+                       <li>이용 목적: 무료 자료 제공, 비아브 뉴스레터 · 자료 소식 안내</li>
+                       <li>보관 기간: 구독 해지 시까지 (해지하면 바로 삭제해요)</li>
+                       <li>이메일은 뉴스레터 발송 서비스(스티비)에 보관돼요</li>
+                       <li>동의하지 않으셔도 되지만, 동의하지 않으면 자료 전체를 볼 수 없어요</li>
+                     </ul>
+                   </details>
+                   <label><input type="checkbox" id="agree-ad"> <span>(선택) 비아브 소식(광고성 정보)을 이메일로 받을게요</span></label>
+                   <details>
+                     <summary>자세히 보기</summary>
+                     <p>비아브의 새 자료, 템플릿, 강의 소식을 이메일로 받아요. 받은 메일의 수신거부 링크로 언제든 그만 받을 수 있어요.</p>
+                   </details>
+                 </div>
                </form>
                <p class="err" role="alert"></p>
              </section>`}
@@ -209,15 +236,24 @@
     if (form) {
       form.addEventListener("submit", e => {
         e.preventDefault();
-        const input = form.querySelector("input");
+        const input = form.querySelector("#email");
         const email = input.value.trim();
         const err = app.querySelector(".gate .err");
+        const btn = form.querySelector("button");
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
           err.textContent = "이메일 주소를 다시 확인해 주세요";
           input.focus();
           return;
         }
-        sendEmail(email).then(() => {
+        if (!form.querySelector("#agree-privacy").checked) {
+          err.textContent = "개인정보 수집·이용에 동의해 주셔야 자료가 열려요";
+          form.querySelector("#agree-privacy").focus();
+          return;
+        }
+        err.textContent = "";
+        btn.disabled = true;
+        btn.textContent = "여는 중…";
+        sendEmail(email, c.id, form.querySelector("#agree-ad").checked).then(() => {
           saveEmail(email);
           const y = window.scrollY;
           item(c, it);

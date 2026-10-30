@@ -144,7 +144,16 @@ a.card:hover { border-color: var(--taupe); }
 .gate .lock { font-size: 24px; }
 .gate h2 { margin: 6px 0 6px; font-size: 18px; }
 .gate p { margin: 0 0 16px; font-size: 14px; color: var(--ink-soft); }
-.gate form { display: flex; gap: 8px; max-width: 420px; margin: 0 auto; }
+.gate form { max-width: 420px; margin: 0 auto; }
+.gate .row { display: flex; gap: 8px; }
+.gate .agree { margin-top: 12px; text-align: left; font-size: 13px; color: var(--ink); }
+.gate .agree label { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; cursor: pointer; }
+.gate .agree input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--taupe); flex: none; }
+.gate .agree details { margin: 2px 0 0 24px; color: var(--ink-soft); }
+.gate .agree summary { cursor: pointer; font-size: 12px; }
+.gate .agree ul { margin: 6px 0; padding-left: 1.1em; }
+.gate .agree details p { margin: 6px 0; font-size: 12px; color: var(--ink-soft); }
+.gate button:disabled { opacity: .7; cursor: default; }
 .gate input[type=email] {
   flex: 1; min-width: 0; min-height: 48px; padding: 0 14px;
   border: 1px solid var(--line); border-radius: 12px; font: inherit; font-size: 16px; background: var(--paper); color: var(--ink-strong);
@@ -183,7 +192,7 @@ a.card:hover { border-color: var(--taupe); }
   .hero { padding-top: 36px; }
   .hero h1 { font-size: 22px; }
   .doc { padding: 18px 14px; }
-  .gate form { flex-direction: column; }
+  .gate .row { flex-direction: column; }
   .banner { flex-wrap: wrap; }
   .banner p { flex-basis: calc(100% - 62px); }
   .banner a { width: 100%; }
