@@ -253,11 +253,19 @@
         err.textContent = "";
         btn.disabled = true;
         btn.textContent = "여는 중…";
-        sendEmail(email, c.id, form.querySelector("#agree-ad").checked).then(() => {
+        sendEmail(email, c.id, form.querySelector("#agree-ad").checked).then(r => {
           saveEmail(email);
           const y = window.scrollY;
           item(c, it);
           window.scrollTo(0, y);
+          // 주소 끝에 ?check 를 붙여 열면 스티비 결과를 화면에 보여 줘요 (시험용)
+          if (/[?&]check\b/.test(location.search)) {
+            const names = { success: "새 구독자로 들어갔어요", update: "이미 있던 구독자 정보를 고쳤어요", exist: "이미 구독 중이에요 (이번 분야 그룹에만 더했어요)", fail: "스티비가 거절했어요" };
+            const why = { "not-configured": "Vercel 에 STIBEE_API_KEY 가 없어요", network: "스티비에 연결하지 못했어요" };
+            const text = r && r.timeout ? "6초 안에 답이 없었어요" : (r && (names[r.result] || why[r.reason])) || "결과를 받지 못했어요";
+            const note = app.querySelector(".unlocked-note");
+            if (note) note.insertAdjacentHTML("afterend", `<p class="unlocked-note">스티비 확인: ${esc(text)}${r && r.groupSkipped ? " · 그룹은 요금제 때문에 빠졌어요" : ""}</p>`);
+          }
         });
       });
     }
