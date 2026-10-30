@@ -31,17 +31,16 @@ if [ "$branch" != "main" ]; then
   echo "   지금 칸이 '$branch' 예요. main 에서 실행해 주세요 (git checkout main)."
   exit 1
 fi
-git pull -q --rebase origin main
 git add -A
-if git diff --cached --quiet; then
-  if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
-    echo "   바뀐 것이 없어요. 이미 최신이에요."
-    exit 0
-  fi
-else
+if ! git diff --cached --quiet; then
   msg="자료실 배포 ($(TZ=Asia/Seoul date +%Y-%m-%d))${1:+: $1}"
   git commit -q -m "$msg"
   echo "   커밋: $msg"
+fi
+git pull -q --rebase origin main
+if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
+  echo "   바뀐 것이 없어요. 이미 최신이에요."
+  exit 0
 fi
 for wait in 2 4 8 16 0; do
   if git push -q origin main; then

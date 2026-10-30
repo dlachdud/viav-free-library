@@ -1,0 +1,29 @@
+{
+  "published": {
+    "406af78d7b34818795dfdb64a6b45810": {
+      "title": "DM 답장 스킬 세트",
+      "hash": "a6ccd040da3d6831",
+      "slug": "dm-reply-skill-set",
+      "category": "주문으로-이어지기"
+    },
+    "3ffaf78d7b3481d4a728dab429774b89": {
+      "title": "주문 안내문 프롬프트",
+      "hash": "89747c5256f79adc",
+      "slug": "order-notice-prompt",
+      "category": "AI로-콘텐츠-만들기"
+    },
+    "3feaf78d7b3481f5a33aeb7ee9dc9ffc": {
+      "title": "'트렌디한 요즘 맛'소식 + 후킹멘트 프롬프트",
+      "hash": "1ef7bd48de2744c8",
+      "slug": "trendy-taste-2026-10",
+      "category": "릴스-기획-촬영"
+    },
+    "3fdaf78d7b34815fb3ded3ce4ace09cd": {
+      "title": "따라 찍기 좋은 릴스 고르는 체크리스트",
+      "hash": "963a8ec2d1c079aa",
+      "slug": "follow-along-reels-checklist",
+      "category": "릴스-기획-촬영"
+    }
+  },
+  "updated": "2026-10-30 19:37"
+}
