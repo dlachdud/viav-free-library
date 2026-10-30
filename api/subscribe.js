@@ -64,22 +64,32 @@ module.exports = async (req, res) => {
   const groupId = (s["분야그룹"] || {})[String(body.category || "")];
   const subscriber = { email, $ad_agreed: body.adAgreed ? "Y" : "N" };
 
+  const add = groupIds => stibee(`/lists/${listId}/subscribers`, {
+    eventOccuredBy: "SUBSCRIBER",
+    confirmEmailYN: s["구독확인메일"] ? "Y" : "N",
+    groupIds,
+    subscribers: [subscriber],
+  }, key);
+
   try {
-    const r = await stibee(`/lists/${listId}/subscribers`, {
-      eventOccuredBy: "SUBSCRIBER",
-      confirmEmailYN: s["구독확인메일"] ? "Y" : "N",
-      groupIds: groupId ? [String(groupId)] : [],
-      subscribers: [subscriber],
-    }, key);
-    const result = outcome(r);
+    let r = await add(groupId ? [String(groupId)] : []);
+    let result = outcome(r);
+    // 요금제 때문에 그룹이 거절되면 그룹 없이 주소록에만 넣어요
+    let groupSkipped = false;
+    if (result === "fail" && groupId) {
+      console.error("stibee subscribe with group failed, retrying without group", r.status, r.text);
+      r = await add([]);
+      result = outcome(r);
+      groupSkipped = true;
+    }
     // 이미 구독 중인 분도 이번 분야 그룹에 넣어 둬요 (실패해도 괜찮아요)
     let grouped = null;
-    if (groupId && result === "exist") {
+    if (groupId && result === "exist" && !groupSkipped) {
       const g = await stibee(`/lists/${listId}/groups/${groupId}/subscribers`, [email], key).catch(() => null);
       grouped = g ? g.status : null;
     }
     if (result === "fail") console.error("stibee subscribe failed", r.status, r.text);
-    res.status(200).json({ ok: result !== "fail", result, grouped });
+    res.status(200).json({ ok: result !== "fail", result, grouped, groupSkipped });
   } catch (e) {
     console.error("stibee subscribe error", e && e.message);
     res.status(200).json({ ok: false, reason: "network" });
