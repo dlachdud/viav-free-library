@@ -1,5 +1,11 @@
 {
   "published": {
+    "41baf78d7b3481c08c5fd4cab6f5b738": {
+      "title": "연말 DM 답장 예시 5개",
+      "hash": "bab9c952a12cbabb",
+      "slug": "year-end-dm-replies",
+      "category": "주문으로-이어지기"
+    },
     "406af78d7b34818795dfdb64a6b45810": {
       "title": "DM 답장 스킬 세트",
       "hash": "a6ccd040da3d6831",
@@ -25,5 +31,5 @@
       "category": "릴스-기획-촬영"
     }
   },
-  "updated": "2026-10-30 19:37"
+  "updated": "2026-11-18 05:54"
 }
