@@ -1,5 +1,11 @@
 {
   "published": {
+    "41aaf78d7b3481dfb47bcda06ee3f33e": {
+      "title": "겨울 메뉴 체크리스트와 소개 문장 10개",
+      "hash": "a385318efda3e0d3",
+      "slug": "winter-menu-checklist",
+      "category": "릴스-기획-촬영"
+    },
     "41baf78d7b3481c08c5fd4cab6f5b738": {
       "title": "연말 DM 답장 예시 5개",
       "hash": "bab9c952a12cbabb",
@@ -31,5 +37,5 @@
       "category": "릴스-기획-촬영"
     }
   },
-  "updated": "2026-11-18 05:54"
+  "updated": "2026-11-19 05:55"
 }
