@@ -4,6 +4,13 @@
   "fetched_at": "2026-11-23",
   "pages": [
     {
+      "id": "420af78d7b34816ba0ace5ad289b9ffb",
+      "notion_title": "CC | 따라 찍을 릴스 고르는 기준 · 찍기 메모",
+      "icon": "🔴",
+      "date": "2026-11-23",
+      "web_published": null
+    },
+    {
       "id": "41eaf78d7b3481af80e0e8025b594c5d",
       "notion_title": "CC | 스토리 올리기 전·후 점검표",
       "icon": "🔴",
@@ -197,6 +204,13 @@
       "notion_title": "CC | 릴스 대본 빈칸 채우기 세트",
       "icon": "🔴",
       "date": "2026-10-18",
+      "web_published": null
+    },
+    {
+      "id": "421af78d7b34810e9a34f4f2f3b5766e",
+      "notion_title": "사진+영상 4개로 우리 가게 하루 릴스 만들기",
+      "icon": "custom:viav-monogram-milk",
+      "date": "2026-11-23",
       "web_published": null
     },
     {
