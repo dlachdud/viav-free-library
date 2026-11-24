@@ -47,9 +47,14 @@ def unescape(s):
     return html.unescape(s)
 
 
+def _bold(m):
+    # 굵은 글씨 안에 줄바꿈이 있으면 줄마다 따로 굵게 해요 (안 그러면 ** 가 그대로 보여요)
+    parts = re.split(r"<br\s*/?>", m.group(2))
+    return "<br />".join(f"**{p.strip()}**" if p.strip() else "" for p in parts)
+
+
 def inline(s):
-    s = re.sub(r"<b>(.*?)</b>", r"**\1**", s)
-    s = re.sub(r"<strong>(.*?)</strong>", r"**\1**", s)
+    s = re.sub(r"<(b|strong)>(.*?)</\1>", _bold, s, flags=re.S)
     s = re.sub(r"<code>(.*?)</code>", r"`\1`", s)
     s = re.sub(r"<br\s*/?>", "\n", s)
     s = re.sub(r"</?(span|i|em|u|s|p)[^>]*>", "", s)
@@ -104,7 +109,23 @@ def convert(raw, title):
         if n:
             removed.append(f"{why} {n}개")
             text = re.sub(pattern, "\n", text, flags=re.S | re.M)
-    drop(r'<callout[^>]*color="gray_bg"[^>]*>.*?</callout>', "회색 확인 메모")
+    # 회색 상자 중 「확인용 메모 · 출처 · 지워 주세요」 상자만 빼요. 💡 팁 상자는 자료라서 남겨요
+    drop(r'<callout[^>]*color="gray_bg"[^>]*>(?:(?!</callout>).)*?(?:확인용 메모|지워 주세요|출처\s*:|확인 필요)(?:(?!</callout>).)*</callout>', "회색 확인 메모")
+    drop(r'<callout[^>]*icon="🔎"[^>]*>.*?</callout>', "회색 확인 메모")
+    # 노션 영상 임베드 → 자료실 영상 (인스타 · 유튜브), 그 밖의 임베드는 링크로
+    def embed(m):
+        url = html.unescape(m.group(1))
+        if re.search(r"instagram\.com/|youtube\.com/|youtu\.be/", url):
+            return f"\n@영상 {url}\n"
+        return f"\n🔗 [바로 보기]({url})\n"
+    text = re.sub(r'<embed[^>]*source="([^"]+)"[^>]*/?>', embed, text)
+    # 노션 북마크 → 링크 한 줄
+    def bookmark(m):
+        url = html.unescape(m.group(1))
+        ig = re.search(r"instagram\.com/([\w.]+)/?$", url)
+        label = f"인스타그램 @{ig.group(1)}" if ig else re.sub(r"^https?://(www\.)?", "", url).rstrip("/")
+        return f"\n👉 [{label}]({url})\n"
+    text = re.sub(r'<bookmark[^>]*source="([^"]+)"[^>]*/?>', bookmark, text)
     drop(r"<image[^>]*/>", "배너 그림")
     drop(r"^👉 \[@viav\\?_here 인스타그램 바로가기\]\([^)]*\)\s*$", "인스타 바로가기")
     drop(r"<p>[^<]*?(?:(?!</p>).)*릴스 첫 10개 기획 템플릿.*?</p>", "템플릿 소식 문구")
@@ -171,6 +192,8 @@ def split_blocks(body):
 
 
 def text_len(b):
+    if b.startswith("@영상"):
+        return 0  # 영상 주소 글자 수는 공개 비율에 넣지 않아요
     return len(re.sub(r"[\s#|*`>\-\[\]【】_]", "", b))
 
 
@@ -191,7 +214,8 @@ def units_of(block):
 def place_lock(body):
     blocks = split_blocks(body)
     total = sum(text_len(b) for b in blocks) or 1
-    limit = next((i for i, b in enumerate(blocks) if is_secret(b)), len(blocks))
+    # 맨 위 영상은 자료 소개라서 공개해요. 그 밖의 프롬프트 · 영상은 잠금 아래
+    limit = next((i for i, b in enumerate(blocks) if is_secret(b) and not (i == 0 and b.startswith("@영상"))), len(blocks))
     target = OPEN_RATIO * total
     acc, cut = 0, None
     for i, b in enumerate(blocks[:limit]):
