@@ -24,12 +24,12 @@
 
 ![](assets/img/424af78d7b3480d7b2b3f08e55972314_98a23d1a.png)
 
+<!-- 잠금 -->
+
 > ❣️ 무료 캔바 템플릿 3가지
 > 📎 [템플릿 1 열기](https://canva.link/5ltpchykgu1xt6m)
 > 📎 [템플릿 2 열기](https://canva.link/tt14k9x7xwdmdjv)
 > 📎 [템플릿 3 열기](https://canva.link/z3wca69kkzisuy7)
-
-<!-- 잠금 -->
 
 ### ② 글씨와 가격 바꾸기 ✏️
 

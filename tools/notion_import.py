@@ -215,7 +215,8 @@ def text_len(b):
 
 
 def is_secret(b):
-    return b.startswith("```프롬프트") or b.startswith("@영상")
+    # 프롬프트 · 영상 · 링크가 든 상자(템플릿·파일 받는 곳)는 항상 잠금 아래 (링크 상자 2026-11-26 비아)
+    return b.startswith("```프롬프트") or b.startswith("@영상") or (b.startswith(">") and re.search(r"\]\(https?://", b) is not None)
 
 
 def units_of(block):
