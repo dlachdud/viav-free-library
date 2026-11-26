@@ -7,6 +7,8 @@
 노션: https://app.notion.com/p/424af78d7b3481e7b791cb8c5cc3544d
 ---
 
+@영상 https://www.instagram.com/reel/DgNTUNnSgbm/?utm_source=ig_web_copy_link&cnvx=MzRlODBiNWFlZA==&avpt=MzRlODBiNWFlZA==
+
 **❣️ 사진과 글씨만 바꿔서 쓰는 캔바 무료 템플릿**
 
 안녕하세요, 비아브입니다 :)
@@ -17,7 +19,7 @@
 
 ### ① 템플릿 열기
 
-아래의 링크를 누른 뒤 **보라색 「템플릿 편집」** 버튼을 눌러 주세요. 
+아래의 템플릿 링크를 누른 뒤 **보라색 「템플릿 편집」** 버튼을 눌러 주세요. 
 캔바 로그인이 필요할 수 있어요.
 
 ![](assets/img/424af78d7b3480d7b2b3f08e55972314_98a23d1a.png)
