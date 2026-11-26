@@ -70,7 +70,8 @@ function splitLock(body, file) {
     }
     warnings.push(`${file}: 잠금 표시가 없어서 앞 ${at}덩어리만 공개했어요.`);
   }
-  const secret = blocks.findIndex(isSecret);
+  // 맨 위 영상은 자료 소개라 공개해요 (2026-11-24 비아). 그 밖의 프롬프트·영상은 잠금 아래
+  const secret = blocks.findIndex((b, i) => isSecret(b) && !(i === 0 && /^@영상\s/.test(b.trim())));
   if (secret >= 0 && secret < at) {
     warnings.push(`${file}: 프롬프트·영상이 공개 부분에 있어서 그 앞에서 잠갔어요.`);
     at = secret;
