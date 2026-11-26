@@ -133,7 +133,8 @@ def convert(raw, title):
     # 본문 그림 (2026-11-26 비아: 캡처 그림도 사이트에) — 예약 작업이 notion_img/<블록ID>.<확장자> 로 내려받아 둔 그림만 옮겨요.
     # 내려받지 않은 그림(위아래 배너 viav-banner.png 등)은 지금처럼 빼요.
     def keep_image(m):
-        bid = m.group(1).replace("-", "")
+        # 이름 = <블록ID>_<파일ID 앞 8자리> (같은 자리에 그림을 바꿔 넣어도 새 그림으로 알아봐요, 2026-11-26)
+        bid = m.group(1).replace("-", "") + "_" + m.group(2).replace("-", "")[:8]
         found = sorted(IMG_SRC.glob(bid + ".*")) if IMG_SRC.exists() else []
         if not found:
             return m.group(0)
@@ -141,7 +142,7 @@ def convert(raw, title):
         dst = IMG_OUT / found[0].name
         shutil.copyfile(found[0], dst)
         return f"\n![]({IMG_URL}/{found[0].name})\n"
-    text = re.sub(r'<image[^>]*source="notion-file-block://([0-9a-fA-F-]{32,36})/[^"]*"[^>]*/?>', keep_image, text)
+    text = re.sub(r'<image[^>]*source="notion-file-block://([0-9a-fA-F-]{32,36})/([0-9a-fA-F-]{8,36})[^"]*"[^>]*/?>', keep_image, text)
     drop(r"<image[^>]*/>", "배너 그림")
     drop(r"^👉 \[@viav\\?_here 인스타그램 바로가기\]\([^)]*\)\s*$", "인스타 바로가기")
     drop(r"<p>[^<]*?(?:(?!</p>).)*릴스 첫 10개 기획 템플릿.*?</p>", "템플릿 소식 문구")

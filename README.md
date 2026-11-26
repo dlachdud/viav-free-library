@@ -84,7 +84,7 @@
 
 ### 본문 그림 (2026-11-26 비아: 캡처 그림도 사이트에)
 - 비아브 로고 페이지를 `notion-fetch` 할 때 `include_file_urls: true` 로 읽어요.
-- 본문 그림 중 **이름이 `viav-banner.png` 가 아닌 것**(캡처·사진)은 `references` 에 나온 주소로 내려받아 `notion_img/<블록ID 하이픈 없이>.<확장자>` 로 저장해요 (예: `curl -sL "<주소>" -o notion_img/906af78d7b3483c8a65b81118b24b96e.png`). 이미 있는 파일은 다시 받지 않아요.
+- 본문 그림 중 **이름이 `viav-banner.png` 가 아닌 것**(캡처·사진)은 `references` 에 나온 주소로 내려받아 `notion_img/<블록ID 하이픈 없이>_<파일ID 앞 8자리>.<확장자>` 로 저장해요. 파일ID는 `notion-file-block://<블록ID>/<파일ID>?...` 의 두 번째 부분이에요 (예: `curl -sL "<주소>" -o notion_img/424af78d7b34816db7b6c8d7a5eb5540_6d57c974.png`). 같은 이름 파일이 이미 있으면 다시 받지 않아요 (그림을 바꿔 넣으면 파일ID가 바뀌어 새로 받아요).
 - `notion_raw/<id>.md` 는 지금처럼 원문 그대로 저장해요 (그림 줄도 그대로).
 - `notion_import.py` 가 `notion_img` 에 있는 그림만 `assets/img/` 로 옮겨 본문에 넣어요. 없는 그림(배너)은 빼요.
 
