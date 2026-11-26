@@ -1,5 +1,11 @@
 {
   "published": {
+    "424af78d7b3481e7b791cb8c5cc3544d": {
+      "title": "우리 가게 홍보 이미지, 쉽게 만들어요!",
+      "hash": "dc179597849b2366",
+      "slug": "canva-promo-templates",
+      "category": "AI로-콘텐츠-만들기"
+    },
     "41aaf78d7b3481dfb47bcda06ee3f33e": {
       "title": "겨울 메뉴 체크리스트와 소개 문장 10개",
       "hash": "a385318efda3e0d3",
@@ -43,5 +49,5 @@
       "category": "릴스-기획-촬영"
     }
   },
-  "updated": "2026-11-24 11:22"
+  "updated": "2026-11-26 22:50"
 }
