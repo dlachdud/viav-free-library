@@ -221,3 +221,5 @@ a.card:hover { border-color: var(--taupe); }
   .doc td::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 500; color: var(--taupe-deep); }
   .doc td:first-child { font-weight: 700; color: var(--ink-strong); }
 }
+
+.doc .doc-img { display: block; width: 100%; height: auto; border-radius: 12px; margin: 8px 0; }

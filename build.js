@@ -146,6 +146,12 @@ fs.copyFileSync(path.join(ROOT, "embed.js"), path.join(DIST, "embed.js"));
 for (const f of fs.readdirSync(path.join(ROOT, "assets"))) {
   if (fs.statSync(path.join(ROOT, "assets", f)).isFile()) fs.copyFileSync(path.join(ROOT, "assets", f), path.join(DIST, "assets", f));
 }
+// 자료 본문 그림 (assets/img) 도 같이 담아요 (2026-11-26)
+const IMG = path.join(ROOT, "assets", "img");
+if (fs.existsSync(IMG)) {
+  fs.mkdirSync(path.join(DIST, "assets", "img"), { recursive: true });
+  for (const f of fs.readdirSync(IMG)) fs.copyFileSync(path.join(IMG, f), path.join(DIST, "assets", "img", f));
+}
 for (const b of bodies) fs.writeFileSync(path.join(DIST, "assets", b.file), JSON.stringify({ open: b.open, locked: b.locked }));
 
 // 나만 보는 관리자 페이지 (admin.html → dist/<관리자 주소>/index.html)

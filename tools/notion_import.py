@@ -26,6 +26,7 @@ import datetime
 import html
 import json
 import re
+import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,6 +34,9 @@ RAW = ROOT / "notion_raw"
 CONTENT = ROOT / "content"
 MAP = Path(__file__).resolve().parent / "notion_import_map.json"
 REPORT = Path(__file__).resolve().parent / "last_import.md"
+IMG_SRC = ROOT / "notion_img"          # 예약 작업이 노션 본문 그림을 내려받아 두는 곳 (공개 안 됨)
+IMG_OUT = ROOT / "assets" / "img"     # 사이트에 공개되는 그림
+IMG_URL = "assets/img"
 
 OPEN_RATIO = 0.25
 LOCK = "<!-- 잠금 -->"
@@ -126,6 +130,18 @@ def convert(raw, title):
         label = f"인스타그램 @{ig.group(1)}" if ig else re.sub(r"^https?://(www\.)?", "", url).rstrip("/")
         return f"\n👉 [{label}]({url})\n"
     text = re.sub(r'<bookmark[^>]*source="([^"]+)"[^>]*/?>', bookmark, text)
+    # 본문 그림 (2026-11-26 비아: 캡처 그림도 사이트에) — 예약 작업이 notion_img/<블록ID>.<확장자> 로 내려받아 둔 그림만 옮겨요.
+    # 내려받지 않은 그림(위아래 배너 viav-banner.png 등)은 지금처럼 빼요.
+    def keep_image(m):
+        bid = m.group(1).replace("-", "")
+        found = sorted(IMG_SRC.glob(bid + ".*")) if IMG_SRC.exists() else []
+        if not found:
+            return m.group(0)
+        IMG_OUT.mkdir(parents=True, exist_ok=True)
+        dst = IMG_OUT / found[0].name
+        shutil.copyfile(found[0], dst)
+        return f"\n![]({IMG_URL}/{found[0].name})\n"
+    text = re.sub(r'<image[^>]*source="notion-file-block://([0-9a-fA-F-]{32,36})/[^"]*"[^>]*/?>', keep_image, text)
     drop(r"<image[^>]*/>", "배너 그림")
     drop(r"^👉 \[@viav\\?_here 인스타그램 바로가기\]\([^)]*\)\s*$", "인스타 바로가기")
     drop(r"<p>[^<]*?(?:(?!</p>).)*릴스 첫 10개 기획 템플릿.*?</p>", "템플릿 소식 문구")
@@ -192,8 +208,8 @@ def split_blocks(body):
 
 
 def text_len(b):
-    if b.startswith("@영상"):
-        return 0  # 영상 주소 글자 수는 공개 비율에 넣지 않아요
+    if b.startswith("@영상") or b.startswith("!["):
+        return 0  # 영상·그림은 공개 비율 글자 수에 넣지 않아요
     return len(re.sub(r"[\s#|*`>\-\[\]【】_]", "", b))
 
 

@@ -97,7 +97,7 @@ function mount(app, opts) {
       const vid = t.match(/^@영상\s+(\S+)/);
       if (vid) { out.push(videoHtml(vid[1])); i++; continue; }
       const img = t.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/);
-      if (img) { out.push(`<p><img src="${esc(img[2])}" alt="${esc(img[1])}" loading="lazy"></p>`); i++; continue; }
+      if (img) { const src = /^https?:\/\//.test(img[2]) ? img[2] : BASE + img[2]; out.push(`<p><img class="doc-img" src="${esc(src)}" alt="${esc(img[1])}" loading="lazy"></p>`); i++; continue; }
       const h = t.match(/^(#{1,3})\s+(.*)$/);
       if (h) { const n = Math.min(h[1].length + 1, 3); out.push(`<h${n}>${inline(h[2])}</h${n}>`); i++; continue; }
       if (/^(-{3,}|\*{3,})$/.test(t)) { out.push("<hr>"); i++; continue; }
